@@ -10,7 +10,7 @@ export async function crearProducto(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.from("productos").insert({
       ...parsed.data,
       talla: parsed.data.talla || null,
@@ -28,7 +28,7 @@ export async function actualizarPrecio(productoId: string, precio: unknown): Pro
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error, data } = await supabase
       .from("productos")
       .update({ precio: parsed.data })
@@ -48,7 +48,7 @@ export async function ajustarStock(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.rpc("ajustar_stock", {
       p_sucursal: parsed.data.sucursal_id,
       p_producto: parsed.data.producto_id,
@@ -68,7 +68,7 @@ export async function transferirStock(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.rpc("transferir_stock", {
       p_origen: parsed.data.origen,
       p_destino: parsed.data.destino,

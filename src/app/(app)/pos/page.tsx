@@ -4,9 +4,16 @@ import { PosClient } from "./pos-client";
 
 export const dynamic = "force-dynamic";
 
-export default async function PosPage({ searchParams }: { searchParams: { sucursal?: string } }) {
+export default async function PosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sucursal?: string }>;
+}) {
+  // En Next.js 15+, searchParams es una promesa y debe resolverse con await
+  const resolvedSearchParams = await searchParams;
+
   const perfil = await requirePerfil();
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
 
   const { data: sucursales } = await supabase
     .from("sucursales")
@@ -15,10 +22,11 @@ export default async function PosPage({ searchParams }: { searchParams: { sucurs
     .order("nombre");
 
   const lista = sucursales ?? [];
+  
   // Cajero y gerente: su sucursal. Admin: la elegida (o la primera).
   const sucursalId =
     perfil.rol === "admin"
-      ? lista.find((s) => s.id === searchParams.sucursal)?.id ?? lista[0]?.id ?? null
+      ? lista.find((s) => s.id === resolvedSearchParams.sucursal)?.id ?? lista[0]?.id ?? null
       : perfil.sucursal_id;
 
   if (!sucursalId) {
@@ -38,10 +46,17 @@ export default async function PosPage({ searchParams }: { searchParams: { sucurs
     .order("stock", { ascending: false })
     .limit(200);
 
-  const productos = (catalogo ?? []).map((r) => {
-    // @ts-ignore relación 1:1 como objeto
-    const p = r.productos;
-    return { id: p.id as string, codigo_barras: p.codigo_barras as string, nombre: p.nombre as string, talla: p.talla as string | null, precio: Number(p.precio), stock: r.stock as number };
+  const productos = (catalogo ?? []).map((r: any) => {
+    // Forzamos la lectura segura de la relación anidada para evitar errores de TS
+    const p = Array.isArray(r.productos) ? r.productos[0] : r.productos;
+    return {
+      id: p?.id as string,
+      codigo_barras: p?.codigo_barras as string,
+      nombre: p?.nombre as string,
+      talla: p?.talla as string | null,
+      precio: Number(p?.precio ?? 0),
+      stock: r.stock as number,
+    };
   });
 
   return (

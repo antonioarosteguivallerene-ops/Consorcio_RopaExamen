@@ -15,17 +15,14 @@ const CODIGOS_NEGOCIO = [
 
 type PgError = { code?: string; message?: string; details?: string } | null | undefined;
 
-/**
- * Traduce cualquier error (de Postgres, de red o desconocido) a un mensaje
- * amigable. Los errores técnicos se registran en el servidor y nunca se
- * muestran al usuario.
- */
+
 export function mensajeAmigable(err: PgError | unknown): string {
   const e = (err ?? {}) as NonNullable<PgError>;
   const msg = e.message ?? (err instanceof Error ? err.message : "");
 
   // Errores de negocio lanzados por las funciones PL/pgSQL: "CODIGO: mensaje"
-  const m = msg.match(/^([A-Z_]+):\s*(.+)$/s);
+  // Cambiamos el punto con /s por [\s\S] para evitar el error de compilación de ES
+  const m = msg.match(/^([A-Z_]+):\s*([\s\S]+)$/);
   if (m && CODIGOS_NEGOCIO.includes(m[1])) return m[2];
 
   switch (e.code) {

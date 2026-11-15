@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function InventarioPage() {
   const perfil = await requirePerfil();
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
 
   const [inv, suc, prods] = await Promise.all([
     supabase

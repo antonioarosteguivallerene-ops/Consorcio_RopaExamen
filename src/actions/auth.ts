@@ -10,7 +10,8 @@ export async function iniciarSesion(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    // Se añade await porque createClient() ahora es asíncrono
+    const supabase = await createClient();
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) {
       // Mensaje genérico: no revelamos si el correo existe
@@ -24,7 +25,8 @@ export async function iniciarSesion(input: unknown): Promise<ActionResult> {
 }
 
 export async function cerrarSesion() {
-  const supabase = createClient();
+  // Se añade await porque createClient() ahora es asíncrono
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
 }

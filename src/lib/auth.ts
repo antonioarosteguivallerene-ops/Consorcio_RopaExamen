@@ -13,7 +13,7 @@ export type Perfil = {
 
 /** Devuelve el perfil del usuario autenticado o redirige a /login. */
 export async function requirePerfil(roles?: Rol[]): Promise<Perfil> {
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 

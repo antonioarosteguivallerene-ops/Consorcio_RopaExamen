@@ -24,7 +24,7 @@ export async function buscarProductoPorCodigo(
     return { ok: false, error: "Código de barras no válido." };
   }
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("productos")
       .select("id, codigo_barras, nombre, talla, precio, activo, inventario!inner(stock, sucursal_id)")
@@ -60,7 +60,7 @@ export async function registrarVenta(input: unknown): Promise<ActionResult<{ ven
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase.rpc("registrar_venta", {
       p_sucursal: parsed.data.sucursal_id,
       p_metodo: parsed.data.metodo_pago,
@@ -82,7 +82,7 @@ export async function anularVenta(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return errorZod(parsed.error);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.rpc("anular_venta", {
       p_venta: parsed.data.venta_id,
       p_motivo: parsed.data.motivo,

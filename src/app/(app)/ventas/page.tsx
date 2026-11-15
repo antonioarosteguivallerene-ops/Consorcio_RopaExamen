@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function VentasPage() {
   const perfil = await requirePerfil();
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
 
   const { data, error } = await supabase
     .from("ventas")

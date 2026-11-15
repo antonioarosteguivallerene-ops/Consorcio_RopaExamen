@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
 
 const UMBRAL_STOCK_BAJO = 2;
 
-export default async function DashboardPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const resolvedSearchParams = await searchParams;
   const perfil = await requirePerfil();
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
 
   const inicioDia = new Date();
   inicioDia.setHours(0, 0, 0, 0);
@@ -65,7 +66,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
         </p>
       </section>
 
-      {searchParams.error === "permiso" && (
+      {resolvedSearchParams.error === "permiso" && (
         <p className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           No tienes permiso para acceder a esa sección.
         </p>

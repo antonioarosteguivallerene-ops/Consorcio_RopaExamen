@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductosPage() {
   await requirePerfil(["gerente", "admin"]);
-  const supabase = createClient();
+  const supabase = await createClient(); // <--- Aquí faltaba el await
+  
   const { data, error } = await supabase
     .from("productos")
     .select("id, codigo_barras, nombre, categoria, talla, precio")
