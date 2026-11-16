@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { forwardRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -32,14 +32,16 @@ export function AcionesInventario({
   );
 }
 
-function ProductoSelect({ productos, ...props }: { productos: Prod[] } & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select className={selectClass} {...props}>
-      <option value="">Selecciona…</option>
-      {productos.map((p) => <option key={p.id} value={p.id}>{p.nombre}{p.talla ? ` (${p.talla})` : ""}</option>)}
-    </select>
-  );
-}
+const ProductoSelect = forwardRef<HTMLSelectElement, { productos: Prod[] } & React.SelectHTMLAttributes<HTMLSelectElement>>(
+  function ProductoSelect({ productos, ...props }, ref) {
+    return (
+      <select ref={ref} className={selectClass} {...props}>
+        <option value="">Selecciona…</option>
+        {productos.map((p) => <option key={p.id} value={p.id}>{p.nombre}{p.talla ? ` (${p.talla})` : ""}</option>)}
+      </select>
+    );
+  }
+);
 
 function AjusteDialog({ sucursales, productos, sucursalPropia }: { sucursales: Suc[]; productos: Prod[]; sucursalPropia: string | null }) {
   const [open, setOpen] = useState(false);
